@@ -18,13 +18,18 @@ class Socked {
 	private $proxy = '127.0.0.1:9050';
 	private $ua = 'Mozilla/5.0 (X11; Linux i686; rv:7.0.1) Gecko/20100101 Firefox/7.0.1';
 	private $params = '-s';
-	private $session = 'c95as9fp2t7d67moe20ftdq8u6';
-	private $debug = true;
-
+	private $session = null;
+	private $debug = null;
+    private $session_var = 'PHPSESSID';
 
 	public function __construct($options) {
-		$this->setProtocol(isset($options['protocol'])    ? $options['protocol']  : $this->proto);
-		$this->setProxy(isset($options['proxy'])          ? $options['proxy']     : $this->proxy);
+        if (!isset($options['proxy']) && $options['proxy'] === null) {
+            $this->setProxy(null);
+            $this->setProtocol(null);
+        } else {
+            $this->setProxy(isset($options['proxy'])          ? $options['proxy']     : $this->proxy);
+            $this->setProtocol(isset($options['protocol'])    ? $options['protocol']  : $this->proto);
+        }
 		$this->setUserAgent(isset($options['ua'])         ? $options['ua']        : $this->ua);
 		$this->setParams(isset($options['params'])        ? $options['params']    : $this->params);
 		$this->setSession(isset($options['session'])      ? $options['session']   : $this->session);
@@ -35,6 +40,11 @@ class Socked {
     	$file = ' -o "' . $file . '" ';
     	$socked = new Socked($options);
         return $socked->exec($url, $file);
+    }
+
+    public static function get($url, $options = null) {
+        $socked = new Socked($options);
+        return $socked->exec($url);
     }
 
     public static function post($url, $fields, $options = null) {
@@ -49,8 +59,12 @@ class Socked {
     }
 
     private function exec($url, $params) {
-		$command = 'curl '.$this->params.' '.$this->proto.' '.$this->proxy.' -A "'.$this->ua.'" --cookie PHPSESSID='.$this->session.' '.$url .' '.$params;
-		if ($this->debug) echo $command;
+        if ($this->session) {
+            $session = ' --cookie '.$this->session_var.'=' . $this->session;
+        }
+
+		$command = 'curl '.$this->params.' '.$this->proto.' '.$this->proxy.' -A "'.$this->ua.'" '.$session.' '.$url .' '.$params;
+		if ($this->debug && is_callable($this->debug)) call_user_func_array($this->debug, array($command));
         return shell_exec($command);
     }
     
@@ -72,6 +86,10 @@ class Socked {
 
     public function setSession($session) {
     	$this->session = $session;
+    }
+
+    public function setSessionVar($session_var) {
+        $this->session_var = $session_var;
     }
 
     public function setDebug($debug) {
