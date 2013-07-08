@@ -40,7 +40,7 @@ class Socked {
     public static function post($url, $fields, $options = null) {
     	$arrFields = array();
     	foreach ($fields as $field => $value) {
-    		array_push($arrFields, " -F $field=$value ");
+    		array_push($arrFields, " -F $field='$value' ");
     	}
     	$fields = join(' ', $arrFields);
 
