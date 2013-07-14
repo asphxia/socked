@@ -34,6 +34,7 @@ class Socked {
 		$this->setParams(isset($options['params'])        ? $options['params']    : $this->params);
 		$this->setSession(isset($options['session'])      ? $options['session']   : $this->session);
 		$this->setDebug(isset($options['debug'])          ? $options['debug']     : $this->debug);
+        $this->setSessionVar(isset($options['session_var'])? $options['session_var']     : $this->session_var);
 	}
 
     public static function fetch($url, $file, $options = null) {
@@ -61,6 +62,8 @@ class Socked {
     private function exec($url, $params) {
         if ($this->session) {
             $session = ' --cookie '.$this->session_var.'=' . $this->session;
+        }else{
+            $session = '';
         }
 
 		$command = 'curl '.$this->params.' '.$this->proto.' '.$this->proxy.' -A "'.$this->ua.'" '.$session.' '.$url .' '.$params;
