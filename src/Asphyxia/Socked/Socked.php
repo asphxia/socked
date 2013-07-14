@@ -23,7 +23,7 @@ class Socked {
     private $session_var = 'PHPSESSID';
 
 	public function __construct($options) {
-        if (!isset($options['proxy']) && $options['proxy'] === null) {
+        if (!isset($options['proxy']) || $options['proxy'] === null) {
             $this->setProxy(null);
             $this->setProtocol(null);
         } else {
